@@ -1,0 +1,41 @@
+<section id="emprestimo-devolucao" class="section">
+    <h2>Movimentação (Empréstimo e Devolução)</h2>
+    <h3>Novo Empréstimo</h3>
+    <form id="form-emprestimo">
+        <div class="container">
+            <div class="search-container">
+                <input class="input" type="text" id="emprestimo-livro-id" placeholder="ID do Livro" required>
+                <svg viewBox="0 0 24 24" class="search__icon"><g><path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"></path></g></svg>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="search-container">
+                <input class="input" type="text" id="emprestimo-usuario-matricula" placeholder="Matrícula do Usuário" required>
+                <svg viewBox="0 0 24 24" class="search__icon"><g><path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-. भूकंप.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"></path></g></svg>
+            </div>
+        </div>
+
+        <button type="submit">Realizar Empréstimo</button>
+    </form>
+
+    <h3>Empréstimos Ativos (Duração: 10 dias)</h3>
+    <div style="overflow-x: auto;">
+        <table id="tabela-emprestimos">
+            <thead>
+                <tr>
+                    <th>Empréstimo ID</th>
+                    <th>Livro ID</th>
+                    <th>Título</th>
+                    <th>Matrícula</th>
+                    <th>Data Emp.</th>
+                    <th>Dev. Prevista</th>
+                    <th>Status</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
+    </div>
+</section>
