@@ -2,6 +2,7 @@
 const loadData = (key) => JSON.parse(localStorage.getItem(key)) || [];
 const saveData = (key, data) => localStorage.setItem(key, JSON.stringify(data));
 
+// Carrega os dados salvos ou inicializa arrays vazios
 let livros = loadData('livros');
 let usuarios = loadData('usuarios');
 let emprestimos = loadData('emprestimos');
@@ -12,15 +13,14 @@ function toggleMenu() {
     const nav = document.getElementById('main-nav');
     const hamburger = document.querySelector('.hamburger');
     
-    // Altera a visibilidade do menu
+    // Altera a visibilidade do menu e o ícone
     nav.classList.toggle('hidden');
-    // Altera o ícone do hambúrguer (X ou 3 barras)
     hamburger.classList.toggle('open');
 }
 
 /**
- * Carrega o conteúdo de um arquivo HTML na área principal (main) 
- * e executa a função de renderização correspondente.
+ * Carrega o conteúdo de um arquivo HTML na área principal (main), 
+ * define o botão ativo e recolhe o menu.
  */
 async function loadPage(pageUrl, element, renderFunctionName) {
     // 1. GARANTE QUE O MENU É FECHADO APÓS CLICAR
@@ -50,16 +50,16 @@ async function loadPage(pageUrl, element, renderFunctionName) {
         
         contentArea.innerHTML = htmlContent;
         
-        // 3. RE-ATRIBUIÇÃO DE LISTENERS (Pois o conteúdo foi recarregado)
+        // 3. RE-ATRIBUIÇÃO DE LISTENERS
         attachEventListeners(pageUrl);
 
-        // 4. Chama a função de renderização para preencher a tabela
+        // 4. Chama a função de renderização
         if (window[renderFunctionName]) {
             window[renderFunctionName]();
         }
 
     } catch (error) {
-        contentArea.innerHTML = `<section class="section"><h2>Erro ao carregar página</h2><p>Verifique se os arquivos HTML parciais (CadastroLivro.html, etc.) estão no mesmo diretório. Erro: ${error.message}</p></section>`;
+        contentArea.innerHTML = `<section class="section"><h2>Erro ao carregar página</h2><p>Verifique se os arquivos HTML parciais estão no mesmo diretório. Erro: ${error.message}</p></section>`;
         console.error(error);
     }
 }
@@ -75,7 +75,7 @@ function attachEventListeners(pageUrl) {
 }
 
 
-// --- 2. Funções de Manipulação de Dados ---
+// --- 2. Funções de Manipulação de Dados (CRUD Básico) ---
 
 function calculateDueDate(date) {
     const result = new Date(date);
@@ -83,10 +83,20 @@ function calculateDueDate(date) {
     return result.toLocaleDateString('pt-BR');
 }
 
+/**
+ * Cadastra um novo livro, usando todos os campos do Livro.java.
+ */
 function handleCadastrarLivro(e) {
     e.preventDefault();
-    const titulo = document.getElementById('livro-titulo').value.trim();
+    // Campos do modelo Livro.java
+    const nome = document.getElementById('livro-nome').value.trim();
     const autor = document.getElementById('livro-autor').value.trim();
+    const genero = document.getElementById('livro-genero').value.trim();
+    const editora = document.getElementById('livro-editora').value.trim();
+    const edicao = document.getElementById('livro-edicao').value.trim();
+    const ano = parseInt(document.getElementById('livro-ano').value.trim());
+    const isbn = parseInt(document.getElementById('livro-isbn').value.trim());
+    const codbarras = parseInt(document.getElementById('livro-codbarras').value.trim());
     const quantidadeStr = document.getElementById('livro-quantidade').value.trim();
     const quantidade = parseInt(quantidadeStr);
     
@@ -96,22 +106,36 @@ function handleCadastrarLivro(e) {
     }
 
     const id = (livros.length > 0 ? Math.max(...livros.map(l => l.id)) : 0) + 1;
-    livros.push({ id, titulo, autor, total: quantidade, disponivel: quantidade });
+    // Salva todos os campos, incluindo a disponibilidade
+    livros.push({ 
+        id, nome, autor, genero, editora, edicao, ano, isbn, codbarras, 
+        total: quantidade, 
+        disponivel: quantidade 
+    }); 
     saveData('livros', livros);
-    alert(`Livro "${titulo}" cadastrado! ID: ${id}`);
+    alert(`Livro "${nome}" cadastrado! ID: ${id}`);
     renderLivros();
     this.reset();
 }
 
+/**
+ * Cadastra um novo usuário, usando todos os campos do Usuario.java.
+ */
 function handleCadastrarUsuario(e) {
     e.preventDefault();
+    // Campos do modelo Usuario.java
     const nome = document.getElementById('usuario-nome').value.trim();
     const matricula = document.getElementById('usuario-matricula').value.trim();
+    const cpf = document.getElementById('usuario-cpf').value.trim();
+    const email = document.getElementById('usuario-email').value.trim();
+    const telefone = document.getElementById('usuario-telefone').value.trim();
+
     if (usuarios.some(u => u.matricula === matricula)) {
         alert('Erro: Matrícula já cadastrada.');
         return;
     }
-    usuarios.push({ matricula, nome });
+    // Salva todos os campos
+    usuarios.push({ nome, matricula, cpf, email, telefone });
     saveData('usuarios', usuarios);
     alert(`Usuário "${nome}" (Matrícula: ${matricula}) cadastrado!`);
     renderUsuarios();
@@ -133,7 +157,7 @@ function handleRealizarEmprestimo(e) {
 
     if (!livro) { alert('Erro: Livro não encontrado.'); return; }
     if (!usuarioExiste) { alert('Erro: Usuário não encontrado. Verifique a matrícula.'); return; }
-    if (livro.disponivel <= 0) { alert(`Erro: O livro "${livro.titulo}" não tem cópias disponíveis.`); return; }
+    if (livro.disponivel <= 0) { alert(`Erro: O livro "${livro.nome}" não tem cópias disponíveis.`); return; }
     
     livro.disponivel -= 1; 
     const emprestimoId = (emprestimos.length > 0 ? Math.max(...emprestimos.map(em => em.id)) : 0) + 1;
@@ -156,7 +180,7 @@ function handleRealizarEmprestimo(e) {
     this.reset();
 }
 
-// Global para ser chamada do HTML da tabela
+// Lógica de Devolução
 window.handleDevolucao = function(emprestimoId) {
     const emprestimo = emprestimos.find(em => em.id === emprestimoId);
 
@@ -174,8 +198,51 @@ window.handleDevolucao = function(emprestimoId) {
     }
 }
 
+// --- 3. FUNÇÃO DE BUSCA DINÂMICA (Filtro) ---
 
-// --- 3. Funções de Renderização (Globais) ---
+/**
+ * Filtra as linhas de uma tabela com base no texto de um input.
+ * @param {string} inputId - ID do elemento de input que contém o termo de busca.
+ * @param {string} tableId - ID da tabela a ser filtrada.
+ * @param {number[]} colsToFilter - Array de índices das colunas a serem consideradas na busca.
+ */
+window.filterTable = function(inputId, tableId, colsToFilter) {
+    const input = document.getElementById(inputId);
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById(tableId);
+    
+    if (!table) return; 
+
+    const tr = table.getElementsByTagName("tr");
+
+    // Começa em i=1 para pular o cabeçalho (thead)
+    for (let i = 1; i < tr.length; i++) {
+        let rowMatch = false;
+        
+        // Itera sobre as colunas que devem ser filtradas
+        for (const colIndex of colsToFilter) {
+            const td = tr[i].getElementsByTagName("td")[colIndex];
+            
+            if (td) {
+                const textValue = td.textContent || td.innerText;
+                if (textValue.toUpperCase().indexOf(filter) > -1) {
+                    rowMatch = true;
+                    break; 
+                }
+            }
+        }
+        
+        // Define a exibição da linha
+        tr[i].style.display = rowMatch ? "" : "none";
+    }
+}
+
+
+// --- 4. Funções de Renderização (Tabelas) ---
+
+/**
+ * Renderiza a tabela de livros com base no modelo Livro.java.
+ */
 window.renderLivros = function() {
     const tbody = document.getElementById('tabela-livros')?.querySelector('tbody');
     if (!tbody) return; 
@@ -184,13 +251,17 @@ window.renderLivros = function() {
     livros.forEach(livro => {
         const row = tbody.insertRow();
         row.insertCell().textContent = livro.id;
-        row.insertCell().textContent = livro.titulo;
+        row.insertCell().textContent = livro.nome;
         row.insertCell().textContent = livro.autor;
+        row.insertCell().textContent = livro.genero;
         row.insertCell().textContent = livro.total;
         row.insertCell().textContent = livro.disponivel;
     });
 }
 
+/**
+ * Renderiza a tabela de usuários com base no modelo Usuario.java.
+ */
 window.renderUsuarios = function() {
     const tbody = document.getElementById('tabela-usuarios')?.querySelector('tbody');
     if (!tbody) return;
@@ -200,6 +271,9 @@ window.renderUsuarios = function() {
         const row = tbody.insertRow();
         row.insertCell().textContent = usuario.matricula;
         row.insertCell().textContent = usuario.nome;
+        row.insertCell().textContent = usuario.cpf || '-';
+        row.insertCell().textContent = usuario.email || '-';
+        row.insertCell().textContent = usuario.telefone || '-';
     });
 }
 
@@ -227,7 +301,7 @@ window.renderEmprestimos = function() {
 
         row.insertCell().textContent = emprestimo.id;
         row.insertCell().textContent = emprestimo.livroId;
-        row.insertCell().textContent = livro ? livro.titulo : 'Livro Removido';
+        row.insertCell().textContent = livro ? livro.nome : 'Livro Removido'; // Usando livro.nome
         row.insertCell().textContent = emprestimo.usuarioMatricula;
         row.insertCell().textContent = emprestimo.dataEmprestimo;
         row.insertCell().textContent = emprestimo.dataPrevistaDevolucao;

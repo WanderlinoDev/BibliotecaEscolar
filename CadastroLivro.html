@@ -1,43 +1,96 @@
 <section id="cadastro-livro" class="section">
-    <h2>Cadastrar Novo Livro</h2>
-    <form id="form-livro">
-        <div class="container">
-            <div class="search-container">
-                <input class="input" type="text" id="livro-titulo" placeholder="Título do Livro" required>
-                <svg viewBox="0 0 24 24" class="search__icon"><g><path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"></path></g></svg>
-            </div>
-        </div>
-        
-        <div class="container">
-            <div class="search-container">
-                <input class="input" type="text" id="livro-autor" placeholder="Autor" required>
-                <svg viewBox="0 0 24 24" class="search__icon"><g><path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"></path></g></svg>
-            </div>
-        </div>
+  <h2>Cadastrar Novo Livro</h2>
 
-        <div class="container">
-            <div class="search-container">
-                <input class="input" type="text" id="livro-quantidade" placeholder="Quantidade Total de Cópias" required>
-                <svg viewBox="0 0 24 24" class="search__icon"><g><path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"></path></g></svg>
-            </div>
-        </div>
-        
-        <button type="submit">Cadastrar Livro</button>
-    </form>
-    <h3>Estoque de Livros</h3>
-    <div style="overflow-x: auto;">
-        <table id="tabela-livros">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Título</th>
-                    <th>Autor</th>
-                    <th>Total</th>
-                    <th>Disponível</th>
-                </tr>
-            </thead>
-            <tbody>
-                </tbody>
-        </table>
+  <form id="form-livro" 
+        style="display:flex;flex-direction:column;align-items:center;gap:15px;width:100%;">
+
+    <!-- Título -->
+    <div class="input-container">
+      <input type="text" id="livro-nome" placeholder="Título do Livro" required>
+      <span class="topline"></span>
+      <span class="underline"></span>
+      <label class="label" for="livro-nome">Título</label>
     </div>
+
+    <!-- Autor -->
+    <div class="input-container">
+      <input type="text" id="livro-autor" placeholder="Autor" required>
+      <span class="topline"></span>
+      <span class="underline"></span>
+      <label class="label" for="livro-autor">Autor</label>
+    </div>
+
+    <!-- Gênero -->
+    <div class="input-container">
+      <input type="text" id="livro-genero" placeholder="Gênero">
+      <span class="topline"></span>
+      <span class="underline"></span>
+      <label class="label" for="livro-genero">Gênero</label>
+    </div>
+
+    <!-- Editora -->
+    <div class="input-container">
+      <input type="text" id="livro-editora" placeholder="Editora">
+      <span class="topline"></span>
+      <span class="underline"></span>
+      <label class="label" for="livro-editora">Editora</label>
+    </div>
+
+    <!-- Edição -->
+    <div class="input-container">
+      <input type="text" id="livro-edicao" placeholder="Edição">
+      <span class="topline"></span>
+      <span class="underline"></span>
+      <label class="label" for="livro-edicao">Edição</label>
+    </div>
+
+    <!-- Ano -->
+    <div class="input-container">
+      <input type="text" id="livro-ano" placeholder="Ano de Publicação">
+      <span class="topline"></span>
+      <span class="underline"></span>
+      <label class="label" for="livro-ano">Ano</label>
+    </div>
+
+    <!-- ISBN -->
+    <div class="input-container">
+      <input type="text" id="livro-isbn" placeholder="ISBN (Número)">
+      <span class="topline"></span>
+      <span class="underline"></span>
+      <label class="label" for="livro-isbn">ISBN</label>
+    </div>
+
+    <!-- Código de Barras -->
+    <div class="input-container">
+      <input type="text" id="livro-codbarras" placeholder="Código de Barras">
+      <span class="topline"></span>
+      <span class="underline"></span>
+      <label class="label" for="livro-codbarras">Código de Barras</label>
+    </div>
+
+   <button type="submit">
+  <span>Cadastrar Livro</span>
+</button>
+
+  </form>
+
+  <h3>Estoque de Livros</h3>
+  <div style="overflow-x:auto;">
+    <table id="tabela-livros" style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr style="background:#001f3f;color:white;">
+          <th>ID</th>
+          <th>Título</th>
+          <th>Autor</th>
+          <th>Gênero</th>
+          <th>Editora</th>
+          <th>Edição</th>
+          <th>Ano</th>
+          <th>ISBN</th>
+          <th>Cód. Barras</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 </section>
