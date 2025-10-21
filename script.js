@@ -322,3 +322,81 @@ document.addEventListener('DOMContentLoaded', () => {
     const initialButton = document.getElementById('nav-movimentacao');
     loadPage('Movimentacao.html', initialButton, 'renderEmprestimos');
 });
+document.addEventListener("DOMContentLoaded", () => {
+  const formMov = document.getElementById("form-movimentacao");
+  const tabelaMov = document.getElementById("tabela-movimentacoes")?.querySelector("tbody");
+
+  if (formMov) {
+    formMov.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const usuario = document.getElementById("mov-id-usuario").value.trim();
+      const livro = document.getElementById("mov-id-livro").value.trim();
+      const tipo = document.getElementById("mov-tipo").value;
+      const observacao = document.getElementById("mov-observacao").value.trim();
+
+      if (!usuario || !livro || !tipo) {
+        alert("Preencha todos os campos obrigatórios!");
+        return;
+      }
+
+      // Define ícone e cor com base no tipo
+      const tipoMap = {
+        "Empréstimo": { icone: "📗", cor: "#007bff" },
+        "Devolução": { icone: "📘", cor: "#28a745" },
+        "Renovação": { icone: "🔁", cor: "#17a2b8" },
+        "Reserva": { icone: "📒", cor: "#ffc107" },
+        "Aquisição": { icone: "➕", cor: "#6f42c1" },
+        "Baixa": { icone: "❌", cor: "#dc3545" },
+        "Transferência": { icone: "🚚", cor: "#20c997" },
+        "Extravio": { icone: "⚠️", cor: "#fd7e14" },
+        "Em Reparo": { icone: "🛠️", cor: "#6610f2" },
+        "Consulta Local": { icone: "📖", cor: "#17a2b8" },
+        "Devolução Atrasada": { icone: "⏰", cor: "#d63384" },
+      };
+
+      const { icone, cor } = tipoMap[tipo];
+
+      const mov = {
+        id: Date.now(),
+        usuario,
+        livro,
+        tipo,
+        icone,
+        cor,
+        observacao,
+        data: new Date().toLocaleString(),
+      };
+
+      // Salva no localStorage
+      const movs = JSON.parse(localStorage.getItem("movimentacoes")) || [];
+      movs.push(mov);
+      localStorage.setItem("movimentacoes", JSON.stringify(movs));
+
+      renderMovimentacoes();
+      formMov.reset();
+    });
+
+    renderMovimentacoes();
+  }
+
+  function renderMovimentacoes() {
+    if (!tabelaMov) return;
+    const movs = JSON.parse(localStorage.getItem("movimentacoes")) || [];
+    tabelaMov.innerHTML = movs
+      .map(
+        (m) => `
+      <tr style="background-color:${m.cor}20;">
+        <td>${m.id}</td>
+        <td>${m.usuario}</td>
+        <td>${m.livro}</td>
+        <td><b style="color:${m.cor}">${m.tipo}</b></td>
+        <td>${m.icone}</td>
+        <td><div style="width:20px;height:20px;background:${m.cor};border-radius:5px;"></div></td>
+        <td>${m.data}</td>
+        <td>${m.observacao || "-"}</td>
+      </tr>`
+      )
+      .join("");
+  }
+});

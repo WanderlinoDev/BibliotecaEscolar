@@ -415,3 +415,117 @@ button:hover::before {
 button:hover {
   transform: translateY(-2px);
 }
+/* Definições de Cores */
+:root {
+  --primary-color: #003366; /* Azul Escuro */
+  --accent-color: #FFD700; /* Dourado */
+  --background-light: #FFFFFF; /* Branco */
+  --text-color: #333333;
+}
+
+/* 1. ESTRUTURA E FUNCIONAMENTO (O Checkbox Hack) */
+
+/* Contêiner principal */
+.dropdown {
+  position: relative; 
+  display: inline-block; 
+  font-family: Arial, sans-serif;
+}
+
+/* O Checkbox Escondido */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* O Trigger/Botão (com cores da escola) */
+.trigger {
+  display: block;
+  padding: 10px 15px;
+  cursor: pointer;
+  background-color: var(--primary-color); /* Fundo Azul Escuro */
+  color: var(--accent-color); /* Texto Amarelo/Dourado */
+  border: 2px solid var(--accent-color); /* Borda Dourada */
+  border-radius: 6px;
+  font-weight: bold;
+  text-align: center;
+  user-select: none;
+  transition: all 0.3s ease;
+}
+
+/* Efeito ao focar ou passar o mouse no botão */
+.trigger:hover {
+    background-color: #004080; /* Azul um pouco mais claro no hover */
+}
+
+/* A Lista de Opções (UL) - Escondida por padrão */
+.list {
+  display: none; 
+  position: absolute; 
+  top: 100%; 
+  left: 0;
+  z-index: 10;
+  min-width: 250px;
+  background-color: var(--background-light); /* Fundo Branco */
+  border: 1px solid var(--primary-color); /* Borda Azul Escuro */
+  border-radius: 8px;
+  list-style: none; 
+  padding: 10px; 
+  margin: 5px 0 0 0;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* REGRA CRUCIAL: Mostra a lista QUANDO o checkbox está "checked" */
+#mov-tipo-state:checked ~ .list {
+  display: block; 
+}
+
+
+/* 2. ESTILO DOS ITENS (O Efeito "Caixa" com cores) */
+
+/* Estilo do item da lista (<li>) */
+.listitem {
+    margin-bottom: 8px; 
+    padding: 0;
+}
+.listitem:last-child {
+    margin-bottom: 0; 
+}
+
+/* Estilo da "Caixa" ou "Cartão" (o ARTICLE) */
+.listitem .article {
+    /* Aparência da caixa */
+    background-color: var(--background-light); /* Fundo Branco */
+    color: var(--text-color);
+    border: 1px solid #ccc; 
+    border-radius: 6px; 
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); 
+
+    /* Conteúdo interno */
+    padding: 10px 12px; 
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: block;
+}
+
+/* Efeito ao passar o mouse */
+.listitem .article:hover {
+    background-color: #e6f0ff; /* Fundo levemente azul claro no hover */
+    border-color: var(--primary-color); /* Borda Azul Escuro no hover */
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1); 
+    color: var(--primary-color); /* Texto Azul Escuro no hover */
+}
+
+/* 3. ESTILOS ADICIONAIS */
+
+.listitem .article {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
