@@ -1,26 +1,29 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sistema de Biblioteca Escolar</title>
-    <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📚 Biblioteca Escolar</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <div class="header-content">
-            <h1>📖 Gestão de Biblioteca</h1>
-            <button class="hamburger" aria-label="Abrir Menu" onclick="toggleMenu()">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </button>
-        </div>
-        <nav id="main-nav" class="nav-menu hidden">
-            <button id="nav-usuario" onclick="loadPage('pages/CadastroUsuario.html', this, 'renderUsuarios')">Gerenciar Usuários</button>
-        </nav>
-    </header>
-    <main id="content-area"></main>
-    <script src="script.js"></script>
+  <header class="main-header">
+    <h1>📖 Biblioteca Escolar</h1>
+    <button class="hamburger" title="Menu" onclick="toggleMenu()">☰</button>
+  </header>
+
+  <nav id="main-nav">
+    <button onclick="loadPage('/pages/CadastroUsuario.html', this, 'renderUsuarios')">Usuários</button>
+    <button onclick="loadPage('/pages/CadastroLivro.html', this, 'renderLivros')">Livros</button>
+    <button onclick="loadPage('/pages/Movimentacao.html', this, 'renderMovimentacoes')">Movimentações</button>
+  </nav>
+
+  <main id="content-area"></main>
+
+  <footer>
+    <p>Desenvolvido com 💙 para estudos de HTML, CSS e JS</p>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>

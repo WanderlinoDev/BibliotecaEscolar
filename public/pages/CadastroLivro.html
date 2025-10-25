@@ -1,95 +1,31 @@
 <section id="cadastro-livro" class="section">
   <h2>Cadastro de Livros</h2>
-
-  <form id="form-livro" 
-        style="display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;">
-
-    <!-- Título -->
+  <form id="form-livro">
     <div class="input-container">
-      <input type="text" id="livro-nome" placeholder="Título do Livro" required>
-      <span class="topline"></span>
-      <span class="underline"></span>
-      <label class="label" for="livro-nome">Título</label>
+      <input type="text" id="livro-titulo" placeholder="Título" required>
+      <label>Título</label>
     </div>
-
-    <!-- Autor -->
     <div class="input-container">
       <input type="text" id="livro-autor" placeholder="Autor" required>
-      <span class="topline"></span>
-      <span class="underline"></span>
-      <label class="label" for="livro-autor">Autor</label>
+      <label>Autor</label>
     </div>
-
-    <!-- Gênero -->
-    <div class="input-container">
-      <input type="text" id="livro-genero" placeholder="Gênero">
-      <span class="topline"></span>
-      <span class="underline"></span>
-      <label class="label" for="livro-genero">Gênero</label>
-    </div>
-
-    <!-- Editora -->
     <div class="input-container">
       <input type="text" id="livro-editora" placeholder="Editora">
-      <span class="topline"></span>
-      <span class="underline"></span>
-      <label class="label" for="livro-editora">Editora</label>
+      <label>Editora</label>
     </div>
-
-    <!-- Edição -->
     <div class="input-container">
-      <input type="text" id="livro-edicao" placeholder="Edição">
-      <span class="topline"></span>
-      <span class="underline"></span>
-      <label class="label" for="livro-edicao">Edição</label>
+      <input type="number" id="livro-ano" placeholder="Ano de Publicação (AAAA)">
+      <label>Ano</label>
     </div>
-
-    <!-- Ano de Publicação -->
     <div class="input-container">
-      <input type="text" id="livro-ano" placeholder="Ano de Publicação (AAAA)">
-      <span class="topline"></span>
-      <span class="underline"></span>
-      <label class="label" for="livro-ano">Ano</label>
+      <input type="text" id="livro-isbn" placeholder="ISBN" required>
+      <label>ISBN</label>
     </div>
+    <div id="isbn-status" class="status-msg"></div>
 
-    <!-- ISBN (com busca automática na Open Library) -->
-    <div class="input-container" style="position:relative;">
-      <input type="text" id="livro-isbn" placeholder="ISBN (ex: 978-85-510-0984-0)" required>
-      <span class="topline"></span>
-      <span class="underline"></span>
-      <label class="label" for="livro-isbn">ISBN</label>
-      <small id="isbn-msg" style="position:absolute;bottom:-18px;left:5px;color:gray;font-size:12px;">Digite e saia do campo para buscar.</small>
+    <div class="btn-group">
+      <button type="submit"><span>Cadastrar Livro</span></button>
+      <button type="button" id="btn-limpar-livro"><span>Limpar</span></button>
     </div>
-
-    <!-- Código de Barras -->
-    <div class="input-container">
-      <input type="text" id="livro-codbarras" placeholder="Código de Barras">
-      <span class="topline"></span>
-      <span class="underline"></span>
-      <label class="label" for="livro-codbarras">Código de Barras</label>
-    </div>
-
-    <!-- Botão de envio -->
-    <button type="submit">
-      <span>Cadastrar Livro</span>
-    </button>
   </form>
-
-  <h3>Livros Cadastrados</h3>
-
-  <div style="overflow-x:auto;">
-    <table id="tabela-livros" style="width:100%;border-collapse:collapse;">
-      <thead>
-        <tr style="background:#001f3f;color:white;">
-          <th>ID</th>
-          <th>Título</th>
-          <th>Autor</th>
-          <th>Gênero</th>
-          <th>Editora</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
 </section>

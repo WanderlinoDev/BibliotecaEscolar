@@ -1,24 +1,181 @@
-// Frontend script (API base / utilities / users CRUD)
-const BASE_API_URL = 'http://localhost:3000/api';
+/* =============================
+   Funções utilitárias
+============================= */
+const loadData = (k) => JSON.parse(localStorage.getItem(k)) || [];
+const saveData = (k, v) => localStorage.setItem(k, JSON.stringify(v));
 
-function showMessage(message, type='info'){ const box=document.createElement('div'); box.className=`msg-box ${type}`; box.textContent=message; document.body.appendChild(box); setTimeout(()=>box.classList.add('show'),50); setTimeout(()=>{box.classList.remove('show'); setTimeout(()=>box.remove(),500);},3500); }
-async function tryFetch(url, opts={}){ const defaultHeaders={'Content-Type':'application/json'}; if (opts.body && typeof opts.body !== 'string') opts.body = JSON.stringify(opts.body); try{ const res = await fetch(url, {...opts, headers:{...defaultHeaders, ...(opts.headers||{})}}); if (!res.ok){ const err = await res.json().catch(()=>({error:`Erro HTTP ${res.status}`})); throw new Error(err.error||`Erro ${res.status}`); } return res.status===204 ? null : await res.json().catch(()=>({message:'Ação concluída.'})); } catch(e){ console.error('Erro na requisição:', e.message); showMessage(e.message,'error'); return null; } }
-function formatarCPF(cpf){ cpf=cpf.replace(/\D/g,''); if (cpf.length>11) cpf=cpf.substring(0,11); cpf=cpf.replace(/(\d{3})(\d)/,'$1.$2'); cpf=cpf.replace(/(\d{3})(\d)/,'$1.$2'); cpf=cpf.replace(/(\d{3})(\d{1,2})$/,'$1-$2'); return cpf; }
-function formatarTelefone(telefone){ let value=telefone.replace(/\D/g,''); let masked=''; if (value.length>0) masked+='('+value.substring(0,2); if (value.length>2){ if (value.length>10){ masked+=') '+value.substring(2,7); if (value.length>7) masked+='-'+value.substring(7,11); } else { masked+=') '+value.substring(2,6); if (value.length>6) masked+='-'+value.substring(6,10); } } return masked; }
-function validarCPF(cpf){ cpf=cpf.replace(/\D/g,''); if (cpf.length!==11 || /^(\d)\1+$/.test(cpf)) return false; let soma=0; for (let i=0;i<9;i++) soma+=parseInt(cpf[i])*(10-i); let resto=(soma*10)%11; if (resto===10) resto=0; if (resto!==parseInt(cpf[9])) return false; soma=0; for (let i=0;i<10;i++) soma+=parseInt(cpf[i])*(11-i); resto=(soma*10)%11; if (resto===10) resto=0; return resto===parseInt(cpf[10]); }
-document.addEventListener('input',(e)=>{ if(e.target.id==='usuario-cpf'){ e.target.value=formatarCPF(e.target.value); } if(e.target.id==='usuario-telefone'){ e.target.value=formatarTelefone(e.target.value); } });
-document.addEventListener('blur',(e)=>{ if(e.target.id==='usuario-cpf'){ const cpfMsg=document.getElementById('cpf-msg'); const cpf=e.target.value; const cpfLimpo=cpf.replace(/\D/g,''); if (cpfLimpo.length===11 && !validarCPF(cpfLimpo)){ cpfMsg.textContent='❌ CPF inválido!'; e.target.setCustomValidity('CPF inválido'); } else { cpfMsg.textContent=''; e.target.setCustomValidity(''); } } }, true);
-// =========== Navigation & page loader ===========
-let currentButton = null;
-async function loadPage(url, btn, renderFn){ const main=document.getElementById('content-area'); if(!main) return; const res = await fetch(url); if(!res.ok){ showMessage('Erro ao carregar página: '+res.status,'error'); return; } const html = await res.text(); main.innerHTML = html; if (currentButton) currentButton.classList.remove('active'); btn?.classList.add('active'); currentButton = btn; attachEventListeners(url); if (renderFn && typeof window[renderFn] === 'function') window[renderFn](); }
-function attachEventListeners(page){ if (page.includes('Usuario')){ document.getElementById('form-usuario')?.addEventListener('submit', handleSalvarUsuario); document.getElementById('btn-excluir')?.addEventListener('click', handleExcluirUsuario); document.getElementById('btn-limpar')?.addEventListener('click', limparFormularioUsuario); document.getElementById('btn-pesquisar')?.addEventListener('click', handlePesquisarUsuarios); } }
-function toggleMenu(){ document.getElementById('main-nav').classList.toggle('hidden'); }
-document.addEventListener('DOMContentLoaded', ()=>{ const firstBtn=document.querySelector('#main-nav button'); if(firstBtn){ const onclickAttr = firstBtn.getAttribute('onclick'); const match = onclickAttr.match(/loadPage\('(.*?)', this, '(.*?)'\)/); if(match && match[1] && match[2]){ const page=match[1]; const renderFn=match[2]; loadPage(page, firstBtn, renderFn); } else { loadPage('pages/CadastroUsuario.html', firstBtn, 'renderUsuarios'); } } });
-// =========== Users CRUD frontend ===========
-async function renderUsuarios(){ const data = await tryFetch(`${BASE_API_URL}/usuarios`); const tbody = document.querySelector('#tabela-usuarios tbody'); if (!tbody) return; tbody.innerHTML=''; if(!data) return; data.forEach(u=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${u.id_usuario}</td><td>${u.matricula}</td><td>${u.nome}</td><td>${formatarCPF(u.cpf)}</td><td>${u.email}</td><td>${formatarTelefone(u.telefone)}</td>`; tbody.appendChild(tr); }); }
-async function handleSalvarUsuario(e){ e.preventDefault(); const id = document.getElementById('usuario-id')?.value; if (id){ const usuarioAtualizado = { matricula: document.getElementById('usuario-matricula').value, nome: document.getElementById('usuario-nome').value, cpf: document.getElementById('usuario-cpf').value.replace(/\D/g,''), email: document.getElementById('usuario-email').value, telefone: document.getElementById('usuario-telefone').value.replace(/\D/g,'') }; const result = await tryFetch(`${BASE_API_URL}/usuarios/${id}`, { method:'PUT', body: usuarioAtualizado }); if (result) { showMessage('Usuário atualizado com sucesso!','success'); limparFormularioUsuario(); renderUsuarios(); } return; } await handleCadastrarUsuario(e); }
-async function handleCadastrarUsuario(e){ e.preventDefault(); const cpfMascara = document.getElementById('usuario-cpf').value; const cpfLimpo = cpfMascara.replace(/\D/g,''); if (!validarCPF(cpfLimpo)){ showMessage('CPF inválido!','error'); return; } const telefoneLimpo = document.getElementById('usuario-telefone').value.replace(/\D/g,''); const newUsuario = { matricula: document.getElementById('usuario-matricula').value, nome: document.getElementById('usuario-nome').value, cpf: cpfLimpo, email: document.getElementById('usuario-email').value, telefone: telefoneLimpo }; const result = await tryFetch(`${BASE_API_URL}/usuarios`, { method:'POST', body: newUsuario }); if (result){ showMessage('Usuário cadastrado com sucesso!','success'); document.getElementById('form-usuario').reset(); renderUsuarios(); } }
-async function handleExcluirUsuario(){ const id = document.getElementById('usuario-id').value; if (!id) return showMessage('Selecione um usuário antes de excluir.','error'); if (!confirm('Tem certeza que deseja excluir este usuário?')) return; const result = await tryFetch(`${BASE_API_URL}/usuarios/${id}`, { method:'DELETE' }); if (result){ showMessage('Usuário excluído com sucesso!','success'); limparFormularioUsuario(); renderUsuarios(); } }
-function limparFormularioUsuario(){ const form = document.getElementById('form-usuario'); if (form) form.reset(); const hid = document.getElementById('usuario-id'); if (hid) hid.value=''; const cpfMsg = document.getElementById('cpf-msg'); if (cpfMsg) cpfMsg.textContent=''; showMessage('Formulário limpo.','info'); }
-async function handlePesquisarUsuarios(){ const matricula = document.getElementById('pesquisa-matricula')?.value.trim(); const nome = document.getElementById('pesquisa-nome')?.value.trim(); const query = new URLSearchParams(); if (matricula) query.append('matricula', matricula); if (nome) query.append('nome', nome); const data = await tryFetch(`${BASE_API_URL}/usuarios/search?${query.toString()}`); const tbody = document.querySelector('#tabela-usuarios tbody'); if (!tbody) return; tbody.innerHTML=''; if (data && data.length>0){ data.forEach(u=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${u.id_usuario}</td><td>${u.matricula}</td><td>${u.nome}</td><td>${formatarCPF(u.cpf)}</td><td>${u.email}</td><td>${formatarTelefone(u.telefone)}</td>`; tbody.appendChild(tr); }); } else { showMessage('Nenhum usuário encontrado.','info'); } }
-document.addEventListener('click', (e)=>{ const tr = e.target.closest('#tabela-usuarios tbody tr'); if (tr){ const cells = tr.querySelectorAll('td'); document.getElementById('usuario-id').value = cells[0].textContent; document.getElementById('usuario-matricula').value = cells[1].textContent; document.getElementById('usuario-nome').value = cells[2].textContent; document.getElementById('usuario-cpf').value = cells[3].textContent; document.getElementById('usuario-email').value = cells[4].textContent; document.getElementById('usuario-telefone').value = cells[5].textContent; showMessage('Usuário carregado para edição.','info'); } });
+async function tryFetch(url, opts) {
+  try {
+    const res = await fetch(url, opts);
+    if (!res.ok) throw new Error(`Erro ao buscar ${url}`);
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+/* =============================
+   Menu Hambúrguer
+============================= */
+function toggleMenu() {
+  const nav = document.getElementById("main-nav");
+  const hamburgerBtn = document.querySelector(".hamburger");
+  if (!nav || !hamburgerBtn) return;
+  nav.classList.toggle("open");
+  hamburgerBtn.classList.toggle("open");
+}
+
+/* =============================
+   Carregamento dinâmico de páginas
+============================= */
+async function loadPage(pageUrl, buttonElement, renderFunctionName) {
+  try {
+    if (!pageUrl.startsWith("/")) pageUrl = "/" + pageUrl;
+
+    const response = await fetch(pageUrl);
+    if (!response.ok) throw new Error(`Erro ao carregar ${pageUrl}`);
+
+    const html = await response.text();
+    document.getElementById("content-area").innerHTML = html;
+
+    // Destaque no menu
+    document.querySelectorAll("#main-nav button").forEach((btn) => btn.classList.remove("active"));
+    if (buttonElement) buttonElement.classList.add("active");
+
+    // Fecha o menu após clicar
+    if (window.innerWidth <= 768) {
+      const nav = document.getElementById("main-nav");
+      if (nav && nav.classList.contains("open")) toggleMenu();
+    }
+
+    attachEventListeners(pageUrl);
+
+    if (renderFunctionName && window[`${renderFunctionName}Local`]) {
+      window[`${renderFunctionName}Local`]();
+    }
+  } catch (err) {
+    console.error("❌ Erro ao carregar página:", err);
+    document.getElementById("content-area").innerHTML =
+      `<p style="color:red">${err.message}</p>`;
+  }
+}
+
+/* =============================
+   Validação de CPF
+============================= */
+function validarCPF(cpf) {
+  cpf = cpf.replace(/\D/g, "");
+  if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+  let soma = 0;
+  for (let i = 0; i < 9; i++) soma += parseInt(cpf[i]) * (10 - i);
+  let resto = (soma * 10) % 11;
+  if (resto === 10) resto = 0;
+  if (resto !== parseInt(cpf[9])) return false;
+  soma = 0;
+  for (let i = 0; i < 10; i++) soma += parseInt(cpf[i]) * (11 - i);
+  resto = (soma * 10) % 11;
+  if (resto === 10) resto = 0;
+  return resto === parseInt(cpf[10]);
+}
+
+/* =============================
+   Cadastrar Usuário
+============================= */
+async function handleCadastrarUsuario(e) {
+  e.preventDefault();
+  const form = e.target;
+  const usuario = {
+    matricula: form.elements["usuario-matricula"].value,
+    nome: form.elements["usuario-nome"].value,
+    cpf: form.elements["usuario-cpf"].value,
+    email: form.elements["usuario-email"].value,
+    telefone: form.elements["usuario-telefone"].value,
+    tipo: form.elements["usuario-tipo"].value,
+  };
+
+  if (!validarCPF(usuario.cpf)) {
+    alert("CPF inválido!");
+    return;
+  }
+
+  const result = await tryFetch("/api/usuarios", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(usuario),
+  });
+
+  if (result) {
+    alert("Usuário cadastrado com sucesso!");
+    form.reset();
+  } else {
+    const usuarios = loadData("usuarios");
+    usuarios.push({ ...usuario, id_usuario: "Local-" + Date.now() });
+    saveData("usuarios", usuarios);
+    form.reset();
+  }
+}
+
+/* =============================
+   Buscar Usuário (matrícula, nome ou CPF)
+============================= */
+function buscarUsuario() {
+  const matriculaInput = document.getElementById("usuario-matricula");
+  const nomeInput = document.getElementById("usuario-nome");
+  const cpfInput = document.getElementById("usuario-cpf");
+
+  const matricula = matriculaInput.value.trim();
+  const nome = nomeInput.value.trim().toLowerCase();
+  const cpf = cpfInput.value.trim().replace(/\D/g, "");
+
+  const usuarios = loadData("usuarios");
+  const usuario = usuarios.find(
+    (u) =>
+      u.matricula === matricula ||
+      u.nome.toLowerCase() === nome ||
+      u.cpf.replace(/\D/g, "") === cpf
+  );
+
+  if (usuario) {
+    matriculaInput.value = usuario.matricula;
+    nomeInput.value = usuario.nome;
+    cpfInput.value = usuario.cpf;
+    document.getElementById("usuario-email").value = usuario.email || "";
+    document.getElementById("usuario-telefone").value = usuario.telefone || "";
+    document.getElementById("usuario-tipo").value = usuario.tipo || "";
+    alert("Usuário encontrado!");
+  }
+}
+
+/* =============================
+   Eventos por página
+============================= */
+function attachEventListeners(pageUrl) {
+  if (pageUrl.includes("CadastroUsuario")) {
+    const form = document.getElementById("form-usuario");
+    if (form) form.addEventListener("submit", handleCadastrarUsuario);
+
+    ["usuario-matricula", "usuario-nome", "usuario-cpf"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener("keyup", (e) => e.key === "Enter" && buscarUsuario());
+        el.addEventListener("blur", buscarUsuario);
+      }
+    });
+  }
+
+  if (pageUrl.includes("CadastroLivro")) {
+    const form = document.getElementById("form-livro");
+    if (form)
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        alert("Cadastro de livro salvo localmente!");
+      });
+  }
+}
+
+/* =============================
+   Inicialização
+============================= */
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("✅ Aplicação carregada!");
+});
