@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Biblioteca Escolar</title>
+        <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <h1>📖 Gestão de Biblioteca</h1>
+            
+            <button class="hamburger" aria-label="Abrir Menu" onclick="toggleMenu()">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+        </div>
+
+        <nav id="main-nav" class="nav-menu hidden">
+                        <button id="nav-livro" 
+                    onclick="loadPage('pages/CadastroLivro.html', this, 'renderLivros')">Cadastrar Livro</button>
+            
+            <button id="nav-usuario" 
+                    onclick="loadPage('pages/CadastroUsuario.html', this, 'renderUsuarios')">Cadastrar Usuário</button>
+            
+            <button id="nav-movimentacao" 
+                    onclick="loadPage('pages/Movimentacao.html', this, 'renderMovimentacoes')">Movimentação</button>
+        </nav>
+    </header>
+
+    <main id="content-area">
+            </main>
+
+        <script src="script.js"></script>
+</body>
+</html>
