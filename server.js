@@ -1,17 +1,15 @@
 // ============================================================
-// SERVER.JS — Biblioteca Escolar (versão NEON SERVERLESS)
+// SERVER.JS — Biblioteca Escolar (versão final com driver PG)
 // ============================================================
 
 import express from "express";
 import cors from "cors";
 import path from "path";
 import dotenv from "dotenv";
-import { neon } from "@neondatabase/serverless"; // ✅ Novo client Neon Serverless
+import pkg from "pg";
 
-// ============================================================
-// CONFIGURAÇÃO BÁSICA
-// ============================================================
 dotenv.config();
+const { Pool } = pkg;
 const app = express();
 const __dirname = path.resolve();
 
@@ -19,60 +17,59 @@ app.use(cors());
 app.use(express.json());
 
 // ============================================================
-// CONEXÃO COM NEONDB (SERVERLESS)
+// CONEXÃO COM BANCO — PostgreSQL (via driver PG)
 // ============================================================
-// O client Neon é stateless — abre e fecha conexão a cada query
-const sql = neon(process.env.DATABASE_URL);
 
-// 🔎 Verifica conexão inicial
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+});
+
 (async () => {
   try {
-    await sql`SELECT 1`;
-    console.log("✅ Conectado ao banco Neon PostgreSQL (serverless)");
+    const client = await pool.connect();
+    console.log("✅ Conectado ao banco PostgreSQL (pg)");
+    client.release();
   } catch (err) {
     console.error("❌ Erro ao conectar ao banco:", err.message);
   }
 })();
 
 // ============================================================
-// SERVE ARQUIVOS ESTÁTICOS DO FRONTEND
+// ROTAS DE API
 // ============================================================
-app.use(express.static(path.join(__dirname, "public")));
 
-// ============================================================
-// ROTAS DA API — USUÁRIOS
-// ============================================================
 const apiRouter = express.Router();
 
-// 1️⃣ — Cadastrar novo usuário
+// ============================================================
+// 🔹 CADASTRAR USUÁRIO
+// ============================================================
 apiRouter.post("/usuarios", async (req, res) => {
   console.log("[API] POST /usuarios chamado.");
   try {
     const { matricula, nome, cpf, email, telefone } = req.body;
-
     const cpfLimpo = cpf ? cpf.replace(/\D/g, "") : null;
     const telefoneLimpo = telefone ? telefone.replace(/\D/g, "") : null;
 
     if (!matricula || !nome || !cpfLimpo || !email || cpfLimpo.length !== 11) {
-      return res
-        .status(400)
-        .json({ error: "Preencha todos os campos obrigatórios corretamente." });
+      console.log("❌ Dados inválidos recebidos:", req.body);
+      return res.status(400).json({ error: "Campos obrigatórios inválidos." });
     }
 
-    const result = await sql`
-      INSERT INTO public.usuarios (matricula, nome, cpf, email, telefone)
-      VALUES (${matricula}, ${nome}, ${cpfLimpo}, ${email}, ${telefoneLimpo})
-      RETURNING id_usuario;
-    `;
+    const result = await pool.query(
+      `INSERT INTO public.usuarios (matricula, nome, cpf, email, telefone)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING id_usuario`,
+      [matricula, nome, cpfLimpo, email, telefoneLimpo]
+    );
 
+    console.log("✅ Usuário cadastrado:", result.rows[0]);
     res.status(201).json({
       message: "Usuário cadastrado com sucesso!",
-      id: result[0].id_usuario,
+      id: result.rows[0].id_usuario,
     });
-
-    console.log("👤 Usuário cadastrado:", nome);
   } catch (err) {
-    if (err.message.includes("duplicate key")) {
+    if (err.message && err.message.includes("duplicate key")) {
       return res
         .status(409)
         .json({ error: "Matrícula ou CPF já cadastrados." });
@@ -82,54 +79,122 @@ apiRouter.post("/usuarios", async (req, res) => {
   }
 });
 
-// 2️⃣ — Listar todos os usuários
+// ============================================================
+// 🔹 LISTAR USUÁRIOS
+// ============================================================
 apiRouter.get("/usuarios", async (req, res) => {
   try {
-    const result = await sql`
-      SELECT id_usuario, matricula, nome, cpf, email, telefone, data_cadastro
-      FROM public.usuarios
-      ORDER BY id_usuario ASC;
-    `;
-    res.json(result);
+    const result = await pool.query(
+      `SELECT id_usuario, matricula, nome, cpf, email, telefone, data_cadastro
+       FROM public.usuarios
+       ORDER BY id_usuario ASC`
+    );
+    res.json(result.rows);
   } catch (err) {
     console.error("❌ Erro ao listar usuários:", err.message);
     res.status(500).json({ error: "Erro ao listar usuários." });
   }
 });
 
-// 3️⃣ — Buscar usuário por matrícula
-apiRouter.get("/usuarios/matricula/:matricula", async (req, res) => {
-  const { matricula } = req.params;
+// ============================================================
+// 🔹 PESQUISAR USUÁRIO (por matrícula e/ou nome)
+// ============================================================
+apiRouter.get("/usuarios/search", async (req, res) => {
+  const { matricula, nome } = req.query;
   try {
-    const result = await sql`
-      SELECT id_usuario, nome
+    let query = `
+      SELECT id_usuario, matricula, nome, cpf, email, telefone
       FROM public.usuarios
-      WHERE matricula = ${matricula};
-    `;
-    if (result.length === 0) {
-      return res.status(404).json({ error: "Usuário não encontrado." });
+      WHERE 1=1`;
+    const params = [];
+
+    if (matricula) {
+      params.push(`%${matricula}%`);
+      query += ` AND matricula ILIKE $${params.length}`;
     }
-    res.json(result[0]);
+    if (nome) {
+      params.push(`%${nome}%`);
+      query += ` AND nome ILIKE $${params.length}`;
+    }
+
+    query += ` ORDER BY id_usuario ASC;`;
+    const result = await pool.query(query, params);
+    res.json(result.rows);
   } catch (err) {
-    console.error("❌ Erro ao buscar usuário:", err.message);
-    res.status(500).json({ error: "Erro ao buscar usuário." });
+    console.error("❌ Erro ao pesquisar usuários:", err.message);
+    res.status(500).json({ error: "Erro ao pesquisar usuários." });
   }
 });
 
 // ============================================================
-// MONTAGEM DO ROUTER
+// 🔹 ATUALIZAR USUÁRIO
 // ============================================================
-app.use("/api", apiRouter);
+apiRouter.put("/usuarios/:id", async (req, res) => {
+  const { id } = req.params;
+  const { matricula, nome, cpf, email, telefone } = req.body;
 
-// ============================================================
-// ROTA FALLBACK — SPA (Single Page Application)
-// ============================================================
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  try {
+    const result = await pool.query(
+      `UPDATE public.usuarios
+       SET matricula = $1,
+           nome = $2,
+           cpf = $3,
+           email = $4,
+           telefone = $5
+       WHERE id_usuario = $6
+       RETURNING *`,
+      [
+        matricula,
+        nome,
+        cpf.replace(/\D/g, ""),
+        email,
+        telefone.replace(/\D/g, ""),
+        id,
+      ]
+    );
+
+    if (result.rowCount === 0)
+      return res.status(404).json({ error: "Usuário não encontrado." });
+
+    res.json({
+      message: "Usuário atualizado com sucesso!",
+      usuario: result.rows[0],
+    });
+  } catch (err) {
+    console.error("❌ Erro ao atualizar usuário:", err.message);
+    res.status(500).json({ error: "Erro ao atualizar usuário." });
+  }
 });
 
 // ============================================================
-// INICIALIZAÇÃO DO SERVIDOR
+// 🔹 EXCLUIR USUÁRIO
 // ============================================================
+apiRouter.delete("/usuarios/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      `DELETE FROM public.usuarios WHERE id_usuario = $1 RETURNING id_usuario`,
+      [id]
+    );
+    if (result.rowCount === 0)
+      return res.status(404).json({ error: "Usuário não encontrado." });
+
+    res.json({ message: "Usuário excluído com sucesso!" });
+  } catch (err) {
+    console.error("❌ Erro ao excluir usuário:", err.message);
+    res.status(500).json({ error: "Erro ao excluir usuário." });
+  }
+});
+
+// ============================================================
+// MONTAGEM DO SERVIDOR
+// ============================================================
+
+app.use("/api", apiRouter);
+app.use(express.static(path.join(__dirname, "public")));
+app.get(/^\/(?!api).*/, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Servidor rodando na porta ${PORT}`));
