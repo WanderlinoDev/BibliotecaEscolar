@@ -2,7 +2,6 @@
 -- 📚 SISTEMA DE BIBLIOTECA ESCOLAR
 -- Autor: Wanderlino & ChatGPT
 -- Descrição: Criação das tabelas e inserção dos tipos de movimentação
--- Banco compatível com: MySQL / MariaDB / SQLite / PostgreSQL
 -- =========================================================
 
 -- ==========================================
