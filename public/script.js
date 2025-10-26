@@ -1,181 +1,118 @@
-/* =============================
-   Funções utilitárias
-============================= */
-const loadData = (k) => JSON.parse(localStorage.getItem(k)) || [];
-const saveData = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+const BASE_API_URL = "http://localhost:3000/api";
 
-async function tryFetch(url, opts) {
-  try {
-    const res = await fetch(url, opts);
-    if (!res.ok) throw new Error(`Erro ao buscar ${url}`);
-    return await res.json();
-  } catch {
-    return null;
-  }
-}
-
-/* =============================
-   Menu Hambúrguer
-============================= */
-function toggleMenu() {
-  const nav = document.getElementById("main-nav");
-  const hamburgerBtn = document.querySelector(".hamburger");
-  if (!nav || !hamburgerBtn) return;
-  nav.classList.toggle("open");
-  hamburgerBtn.classList.toggle("open");
-}
-
-/* =============================
-   Carregamento dinâmico de páginas
-============================= */
-async function loadPage(pageUrl, buttonElement, renderFunctionName) {
-  try {
-    if (!pageUrl.startsWith("/")) pageUrl = "/" + pageUrl;
-
-    const response = await fetch(pageUrl);
-    if (!response.ok) throw new Error(`Erro ao carregar ${pageUrl}`);
-
-    const html = await response.text();
-    document.getElementById("content-area").innerHTML = html;
-
-    // Destaque no menu
-    document.querySelectorAll("#main-nav button").forEach((btn) => btn.classList.remove("active"));
-    if (buttonElement) buttonElement.classList.add("active");
-
-    // Fecha o menu após clicar
-    if (window.innerWidth <= 768) {
-      const nav = document.getElementById("main-nav");
-      if (nav && nav.classList.contains("open")) toggleMenu();
-    }
-
-    attachEventListeners(pageUrl);
-
-    if (renderFunctionName && window[`${renderFunctionName}Local`]) {
-      window[`${renderFunctionName}Local`]();
-    }
-  } catch (err) {
-    console.error("❌ Erro ao carregar página:", err);
-    document.getElementById("content-area").innerHTML =
-      `<p style="color:red">${err.message}</p>`;
-  }
-}
-
-/* =============================
-   Validação de CPF
-============================= */
-function validarCPF(cpf) {
-  cpf = cpf.replace(/\D/g, "");
-  if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
-  let soma = 0;
-  for (let i = 0; i < 9; i++) soma += parseInt(cpf[i]) * (10 - i);
-  let resto = (soma * 10) % 11;
-  if (resto === 10) resto = 0;
-  if (resto !== parseInt(cpf[9])) return false;
-  soma = 0;
-  for (let i = 0; i < 10; i++) soma += parseInt(cpf[i]) * (11 - i);
-  resto = (soma * 10) % 11;
-  if (resto === 10) resto = 0;
-  return resto === parseInt(cpf[10]);
-}
-
-/* =============================
-   Cadastrar Usuário
-============================= */
-async function handleCadastrarUsuario(e) {
+// Cadastrar usuário
+document.getElementById("form-usuario").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const form = e.target;
+
   const usuario = {
-    matricula: form.elements["usuario-matricula"].value,
-    nome: form.elements["usuario-nome"].value,
-    cpf: form.elements["usuario-cpf"].value,
-    email: form.elements["usuario-email"].value,
-    telefone: form.elements["usuario-telefone"].value,
-    tipo: form.elements["usuario-tipo"].value,
+    matricula: document.getElementById("usuario-matricula").value.trim(),
+    nome: document.getElementById("usuario-nome").value.trim(),
+    cpf: document.getElementById("usuario-cpf").value.trim(),
+    email: document.getElementById("usuario-email").value.trim(),
+    telefone: document.getElementById("usuario-telefone").value.trim(),
+    tipo: document.getElementById("usuario-tipo").value
   };
 
-  if (!validarCPF(usuario.cpf)) {
-    alert("CPF inválido!");
+  if (!usuario.matricula || !usuario.nome || !usuario.cpf || !usuario.tipo) {
+    alert("Preencha todos os campos obrigatórios.");
     return;
   }
 
-  const result = await tryFetch("/api/usuarios", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(usuario),
-  });
-
-  if (result) {
-    alert("Usuário cadastrado com sucesso!");
-    form.reset();
-  } else {
-    const usuarios = loadData("usuarios");
-    usuarios.push({ ...usuario, id_usuario: "Local-" + Date.now() });
-    saveData("usuarios", usuarios);
-    form.reset();
-  }
-}
-
-/* =============================
-   Buscar Usuário (matrícula, nome ou CPF)
-============================= */
-function buscarUsuario() {
-  const matriculaInput = document.getElementById("usuario-matricula");
-  const nomeInput = document.getElementById("usuario-nome");
-  const cpfInput = document.getElementById("usuario-cpf");
-
-  const matricula = matriculaInput.value.trim();
-  const nome = nomeInput.value.trim().toLowerCase();
-  const cpf = cpfInput.value.trim().replace(/\D/g, "");
-
-  const usuarios = loadData("usuarios");
-  const usuario = usuarios.find(
-    (u) =>
-      u.matricula === matricula ||
-      u.nome.toLowerCase() === nome ||
-      u.cpf.replace(/\D/g, "") === cpf
-  );
-
-  if (usuario) {
-    matriculaInput.value = usuario.matricula;
-    nomeInput.value = usuario.nome;
-    cpfInput.value = usuario.cpf;
-    document.getElementById("usuario-email").value = usuario.email || "";
-    document.getElementById("usuario-telefone").value = usuario.telefone || "";
-    document.getElementById("usuario-tipo").value = usuario.tipo || "";
-    alert("Usuário encontrado!");
-  }
-}
-
-/* =============================
-   Eventos por página
-============================= */
-function attachEventListeners(pageUrl) {
-  if (pageUrl.includes("CadastroUsuario")) {
-    const form = document.getElementById("form-usuario");
-    if (form) form.addEventListener("submit", handleCadastrarUsuario);
-
-    ["usuario-matricula", "usuario-nome", "usuario-cpf"].forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener("keyup", (e) => e.key === "Enter" && buscarUsuario());
-        el.addEventListener("blur", buscarUsuario);
-      }
+  try {
+    const response = await fetch(`${BASE_API_URL}/usuarios`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(usuario),
     });
-  }
 
-  if (pageUrl.includes("CadastroLivro")) {
-    const form = document.getElementById("form-livro");
-    if (form)
-      form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        alert("Cadastro de livro salvo localmente!");
-      });
+    const data = await response.json();
+    if (!response.ok) {
+      alert(`Erro ao cadastrar: ${data.error || "Erro desconhecido"}`);
+      return;
+    }
+
+    alert("✅ Usuário cadastrado com sucesso!");
+    document.getElementById("form-usuario").reset();
+  } catch (err) {
+    console.error("❌ Erro ao conectar:", err);
+    alert("Erro ao conectar ao servidor.");
+  }
+});
+
+// Pesquisa automática
+document.querySelectorAll("#usuario-matricula, #usuario-nome, #usuario-cpf")
+  .forEach(input => input.addEventListener("blur", buscarUsuario));
+
+async function buscarUsuario() {
+  const matricula = document.getElementById("usuario-matricula").value.trim();
+  const nome = document.getElementById("usuario-nome").value.trim();
+  const cpf = document.getElementById("usuario-cpf").value.trim();
+
+  if (!matricula && !nome && !cpf) return;
+
+  try {
+    const params = new URLSearchParams();
+    if (matricula) params.append("matricula", matricula);
+    if (nome) params.append("nome", nome);
+    if (cpf) params.append("cpf", cpf);
+
+    const response = await fetch(`${BASE_API_URL}/usuarios/search?${params}`);
+    const data = await response.json();
+
+    if (data.length > 0) {
+      const user = data[0];
+      document.getElementById("usuario-matricula").value = user.matricula || "";
+      document.getElementById("usuario-nome").value = user.nome || "";
+      document.getElementById("usuario-cpf").value = user.cpf || "";
+      document.getElementById("usuario-email").value = user.email || "";
+      document.getElementById("usuario-telefone").value = user.telefone || "";
+      if (user.tipo) document.getElementById("usuario-tipo").value = user.tipo;
+      alert(`Usuário encontrado: ${user.nome}`);
+    }
+  } catch (err) {
+    console.error("❌ Erro ao buscar usuário:", err);
   }
 }
+// Exibir notificação suave
+function mostrarNotificacao(mensagem, cor = "#0B2447") {
+  const box = document.getElementById("notificacao");
+  box.textContent = mensagem;
+  box.style.backgroundColor = cor;
+  box.style.opacity = "1";
+  setTimeout(() => (box.style.opacity = "0"), 3000);
+}
 
-/* =============================
-   Inicialização
-============================= */
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("✅ Aplicação carregada!");
-});
+// Limpar formulário
+function limparFormulario() {
+  document.getElementById("form-usuario").reset();
+  mostrarNotificacao("🧹 Formulário limpo");
+}
+
+// Excluir usuário
+async function excluirUsuario() {
+  const matricula = document.getElementById("usuario-matricula").value.trim();
+  if (!matricula) {
+    mostrarNotificacao("Informe a matrícula para excluir.", "#b30000");
+    return;
+  }
+
+  if (!confirm("Deseja realmente excluir este usuário?")) return;
+
+  try {
+    const response = await fetch(`${BASE_API_URL}/usuarios/search?matricula=${matricula}`);
+    const data = await response.json();
+
+    if (data.length === 0) {
+      mostrarNotificacao("Usuário não encontrado.", "#b30000");
+      return;
+    }
+
+    const id = data[0].id_usuario;
+    await fetch(`${BASE_API_URL}/usuarios/${id}`, { method: "DELETE" });
+    limparFormulario();
+    mostrarNotificacao("✅ Usuário excluído com sucesso!", "green");
+  } catch (err) {
+    console.error(err);
+    mostrarNotificacao("Erro ao excluir usuário.", "#b30000");
+  }
+}

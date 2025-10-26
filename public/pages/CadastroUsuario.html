@@ -1,58 +1,62 @@
-<section id="cadastro-usuario" class="section">
-  <h2>Cadastrar Novo Usuário</h2>
-  <form id="form-usuario">
-    
-    <div class="container">
-      <div class="search-container">
-        <input class="input" type="text" id="usuario-matricula" placeholder="Matrícula" required>
-        <svg viewBox="0 0 24 24" class="search__icon" onclick="buscarUsuario()">
-          <g><path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9
-          4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66
-          3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5
-          11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365
-          7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"></path></g>
-        </svg>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Usuário</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <section id="cadastro-usuario" class="section">
+    <h2>Cadastro de Usuário</h2>
+
+    <form id="form-usuario">
+
+      <div class="input-container">
+        <input class="input" type="text" id="usuario-matricula" placeholder=" " required>
+        <label class="label" for="usuario-matricula">Matrícula</label>
+        <div class="topline"></div>
+        <div class="underline"></div>
       </div>
-    </div>
 
-    <div class="container">
-      <div class="search-container">
-        <input class="input" type="text" id="usuario-nome" placeholder="Nome Completo do Usuário" required>
-        <svg viewBox="0 0 24 24" class="search__icon" onclick="buscarUsuario()">
-          <g><path d="M21.53 20.47l-3.66-3.66C19.195
-          15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9
-          4.03-9 9 4.03 9 9 9c2.215 0
-          4.24-.804 5.808-2.13l3.66
-          3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5
-          11c0-4.135 3.365-7.5
-          7.5-7.5s7.5 3.365
-          7.5 7.5-3.365 7.5-7.5
-          7.5-7.5-3.365-7.5-7.5z"></path></g>
-        </svg>
+      <div class="input-container">
+        <input class="input" type="text" id="usuario-nome" placeholder=" " required>
+        <label class="label" for="usuario-nome">Nome Completo</label>
+        <div class="topline"></div>
+        <div class="underline"></div>
       </div>
-    </div>
 
-    <div class="input-container-simples">
-      <input class="input-simple" type="text" id="usuario-cpf" placeholder="CPF (Apenas números)" required>
-    </div>
+      <div class="input-container">
+        <input class="input" type="text" id="usuario-cpf" placeholder=" " maxlength="14" required>
+        <label class="label" for="usuario-cpf">CPF</label>
+        <div class="topline"></div>
+        <div class="underline"></div>
+      </div>
 
-    <div class="input-container-simples">
-      <input class="input-simple" type="email" id="usuario-email" placeholder="Email">
-    </div>
+      <div class="input-container">
+        <input class="input" type="email" id="usuario-email" placeholder=" ">
+        <label class="label" for="usuario-email">Email</label>
+        <div class="topline"></div>
+        <div class="underline"></div>
+      </div>
 
-    <div class="input-container-simples">
-      <input class="input-simple" type="tel" id="usuario-telefone" placeholder="Telefone">
-    </div>
+      <div class="input-container">
+        <input class="input" type="tel" id="usuario-telefone" placeholder=" ">
+        <label class="label" for="usuario-telefone">Telefone</label>
+        <div class="topline"></div>
+        <div class="underline"></div>
+      </div>
 
-    <div class="input-container-simples">
-      <select class="input-simple" id="usuario-tipo" required>
-        <option value="">Selecione o Tipo de Usuário</option>
-        <option value="Aluno">Aluno</option>
-        <option value="Professor">Professor</option>
-        <option value="Funcionário">Funcionário</option>
-      </select>
-    </div>
-    
-    <button type="submit">Cadastrar Usuário</button>
-  </form>
-</section>
+      <div class="btn-container">
+        <button type="submit" class="btn">Salvar</button>
+        <button type="button" class="btn btn-delete" onclick="excluirUsuario()">Excluir</button>
+        <button type="button" class="btn btn-clear" onclick="limparFormulario()">Limpar</button>
+      </div>
+    </form>
+  </section>
+
+  <div id="notificacao" class="notificacao"></div>
+
+  <script src="/script.js"></script>
+</body>
+</html>
