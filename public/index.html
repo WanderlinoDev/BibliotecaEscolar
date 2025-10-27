@@ -1,24 +1,54 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>📚 Biblioteca Escolar</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header class="main-header">
-    <h1>📖 Biblioteca Escolar</h1>
-    <button class="hamburger" title="Menu" onclick="toggleMenu()">☰</button>
+  <!-- ============================================================
+       🧭 CABEÇALHO
+       ============================================================ -->
+  <header>
+    <div class="header-content">
+      <h1>📖 Biblioteca Escolar</h1>
+
+      <!-- 🔹 Botão Hamburguer (novo design) -->
+      <div class="background" onclick="toggleMenu()">
+        <button class="menu__icon" aria-label="Abrir menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
   </header>
 
-  <nav id="main-nav">
-    <button onclick="loadPage('/pages/CadastroUsuario.html', this, 'renderUsuarios')">Usuários</button>
-    <button onclick="loadPage('/pages/CadastroLivro.html', this, 'renderLivros')">Livros</button>
-    <button onclick="loadPage('/pages/Movimentacao.html', this, 'renderMovimentacoes')">Movimentações</button>
+  <!-- ============================================================
+       🧭 MENU HAMBÚRGUER
+       ============================================================ -->
+  <nav id="main-nav" class="nav-menu hidden">
+    <button onclick="navigate('pages/CadastroUsuario.html', this, 'renderUsuarios')">
+      Cadastro de Usuário
+    </button>
+    <button onclick="navigate('pages/CadastroLivro.html', this, 'renderLivros')">
+      Cadastro de Livro
+    </button>
+    <button onclick="navigate('pages/Movimentacao.html', this, 'renderMovimentacoes')">
+      Movimentações
+    </button>
   </nav>
 
-  <main id="content-area"></main>
+  <!-- ============================================================
+       📄 CONTEÚDO PRINCIPAL
+       ============================================================ -->
+  <main id="content-area">
+    <section class="welcome">
+      <h2>Bem-vindo à Biblioteca Escolar 📚</h2>
+      <p>Selecione uma opção no menu acima para começar.</p>
+    </section>
+  </main>
 
   <footer>
     <p>Desenvolvido com 💙 para estudos de HTML, CSS e JS</p>

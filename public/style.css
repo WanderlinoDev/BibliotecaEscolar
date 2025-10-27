@@ -1,110 +1,271 @@
+/* ============================================================
+   🎓 Biblioteca Escolar — Tema Moderno e Responsivo
+   ============================================================ */
+
+/* -------- RESET -------- */
 * {
-  box-sizing: border-box;
-  font-family: Poppins, sans-serif;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
 }
 
-body {
-  background: #f4f6fb;
-  color: #0b2447;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+html, body {
+  height: 100%;
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background 0.3s, color 0.3s;
 }
 
+/* -------- VARIÁVEIS -------- */
+:root {
+  --bg: #f5f8fa;
+  --text: #111;
+  --azul: #0B2447;
+  --azul-claro: #19376d;
+  --dourado: #FFD700;
+  --input-bg: #ffffff;
+  --border: #ccc;
+}
+
+body.dark {
+  --bg: #10131a;
+  --text: #f1f1f1;
+  --input-bg: #1b1f2a;
+}
+
+/* ============================================================
+   CABEÇALHO E MENU HAMBÚRGUER
+   ============================================================ */
 header {
-  background: linear-gradient(90deg, #0b2447, #19376d);
-  color: #fff;
-  padding: 10px 20px;
+  background: linear-gradient(90deg, var(--azul), var(--azul-claro));
+  color: white;
+  padding: 15px 10px;
+  box-shadow: 0 4px 8px rgba(11,36,71,0.5);
+  position: relative;
+  z-index: 10;
+}
+
+.header-content {
+  max-width: 900px;
+  margin: auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-h1 {
-  font-size: 1.4rem;
-}
-
-main {
-  flex-grow: 1;
-  padding: 20px;
-  max-width: 1000px;
-  width: 100%;
-  margin: 0 auto;
-}
-
-button {
-  padding: 10px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  border: none;
+/* ===== MENU HAMBÚRGUER MODERNO ===== */
+.background {
+  border-radius: 16px;
+  border: 2px solid var(--dourado);
   background: #19376d;
-  color: white;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  backdrop-filter: blur(12px);
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.background:hover {
+  transform: scale(1.08);
+}
+
+.menu__icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.menu__icon span {
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  background-color: var(--dourado);
+  transition: transform 0.4s, background-color 0.4s, opacity 0.4s;
+}
+
+.menu__icon:hover span:nth-child(1) {
+  background-color: #fff;
+  transform: translateY(8px) rotate(-45deg);
+}
+
+.menu__icon:hover span:nth-child(2) {
+  opacity: 0;
+}
+
+.menu__icon:hover span:nth-child(3) {
+  background-color: #fff;
+  transform: translateY(-8px) rotate(45deg);
+}
+
+/* ===== MENU DROPDOWN ===== */
+.nav-menu {
+  position: absolute;
+  top: 85px;
+  right: 20px;
+  background: var(--azul);
+  border: 2px solid var(--dourado);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 9;
+  transition: all 0.3s ease-in-out;
+}
+
+.nav-menu.hidden {
+  display: none;
+}
+
+.nav-menu button {
+  background: transparent;
+  color: #fff;
+  border: none;
+  padding: 15px;
+  text-align: left;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.nav-menu button:hover {
+  background: var(--dourado);
+  color: var(--azul);
   font-weight: 600;
 }
 
-#main-nav {
-  display: none;
-  background: #003366;
-  flex-direction: column;
-  padding: 10px;
+/* ============================================================
+   CONTEÚDO PRINCIPAL E FORMULÁRIOS
+   ============================================================ */
+main#content-area {
+  width: 100%;
+  max-width: 900px;
+  margin: 25px auto;
+  padding: 25px;
+  background: var(--input-bg);
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(11,36,71,0.3);
 }
 
-#main-nav.open {
+h2 {
+  text-align: center;
+  color: var(--azul);
+  margin-bottom: 20px;
+}
+
+/* ===== INPUTS CENTRALIZADOS ===== */
+form {
   display: flex;
-}
-
-#main-nav button {
-  margin: 5px 0;
-  background: transparent;
-  border: 2px solid white;
-  color: white;
-  font-weight: 500;
-  border-radius: 8px;
-}
-
-#main-nav button:hover {
-  background: white;
-  color: #003366;
-}
-
-.hamburger {
-  font-size: 24px;
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
+  flex-direction: column;
+  align-items: center;
 }
 
 .input-container {
   position: relative;
   width: 100%;
-  max-width: 400px;
-  margin: 15px auto;
+  max-width: 500px;
+  margin: 10px auto;
 }
 
-.input-container input {
-  padding: 10px;
-  height: 40px;
+.input {
   width: 100%;
-  border: 2px solid #0b2447;
-  border-radius: 5px;
+  padding: 10px 12px;
+  height: 45px;
+  border: 2px solid var(--azul);
+  border-top: none;
+  border-bottom: none;
+  font-size: 16px;
+  color: var(--azul);
+  background: var(--input-bg);
+  outline: none;
+  box-shadow: 6px 6px 0px 0px var(--azul);
+  transition: all 0.4s ease;
+  border-radius: 4px;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
+.input:focus {
+  box-shadow: 0 0 8px var(--azul);
+  border-color: var(--dourado);
 }
 
-th, td {
-  padding: 10px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
+.label {
+  position: absolute;
+  top: 12px;
+  left: 15px;
+  font-size: 14px;
+  color: var(--azul);
+  pointer-events: none;
+  transition: all 0.4s ease;
+  background: var(--input-bg);
+  padding: 0 5px;
 }
 
-tbody tr:hover {
-  background: #e6ebfa;
+.input:focus + .label,
+.input:not(:placeholder-shown) + .label {
+  top: -10px;
+  left: 10px;
+  font-size: 13px;
+  color: var(--dourado);
+  font-weight: 600;
+}
+
+/* Linhas animadas */
+.topline, .underline {
+  position: absolute;
+  height: 2px;
+  background-color: var(--azul);
+  width: 0;
+  transition: width 0.4s ease;
+}
+
+.topline { top: 0; right: 0; }
+.underline { bottom: 0; right: 0; }
+
+.input:focus ~ .topline { width: 35%; }
+.input:focus ~ .underline { width: 100%; }
+
+/* ===== BOTÕES CENTRALIZADOS ===== */
+.btn-container {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.btn {
+  background-color: var(--azul);
+  color: #fff;
+  border: none;
+  padding: 10px 25px;
+  font-size: 15px;
+  border-radius: 8px;
   cursor: pointer;
+  box-shadow: 4px 4px 0px var(--dourado);
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.btn:hover {
+  background-color: var(--dourado);
+  color: var(--azul);
+  box-shadow: 4px 4px 0px var(--azul);
+  transform: translateY(-2px);
+}
+
+/* ===== RODAPÉ ===== */
+footer {
+  text-align: center;
+  padding: 15px;
+  background: var(--azul);
+  color: #fff;
+  font-size: 0.9rem;
 }
