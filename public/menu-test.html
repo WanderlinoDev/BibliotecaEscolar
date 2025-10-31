@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Menu Test</title>
+  <style>
+    :root { --azul:#0a2342; --dourado:#d4af37; --branco:#fff; }
+    body { margin:0; font-family:Arial, Helvetica, sans-serif; }
+    header { position:fixed; top:0; left:0; right:0; background:var(--azul); color:var(--branco); display:flex; justify-content:space-between; align-items:center; padding:12px 16px; z-index:1000; }
+    .menu__icon{ width:36px; height:26px; position:relative; background:none; border:none; cursor:pointer; }
+    .menu__icon span{ position:absolute; left:0; right:0; height:4px; background:var(--dourado); border-radius:3px; transition:all .2s; }
+    .menu__icon span:nth-child(1){ top:0 } .menu__icon span:nth-child(2){ top:11px } .menu__icon span:nth-child(3){ top:22px }
+    nav{ position:fixed; top:60px; left:0; right:0; background:var(--azul); transform:translateY(-140%); transition:transform .25s ease; z-index:999; display:flex; flex-direction:column; }
+    nav.hidden{ transform:translateY(-140%); } nav:not(.hidden){ transform:translateY(0); }
+    nav button{ padding:14px; border:none; background:none; color:var(--branco); text-align:center; font-size:16px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,.12); }
+    main{ margin-top:80px; padding:20px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>📚 Biblioteca</div>
+    <div id="menu-btn"><button class="menu__icon" aria-label="menu">
+      <span></span><span></span><span></span>
+    </button></div>
+  </header>
+
+  <nav id="main-nav" class="hidden" aria-hidden="true">
+    <button id="b1">Usuários</button>
+    <button id="b2">Livros</button>
+    <button id="b3">Movimentações</button>
+  </nav>
+
+  <main>
+    <h2>Teste do menu</h2>
+    <p>Clique no hambúrguer no canto direito do cabeçalho.</p>
+  </main>
+
+  <script>
+    function toggleMenu(){
+      const nav = document.getElementById('main-nav');
+      const btn = document.getElementById('menu-btn');
+      if(!nav) return;
+      nav.classList.toggle('hidden');
+      // manter aria consistente
+      nav.setAttribute('aria-hidden', nav.classList.contains('hidden') ? 'true' : 'false');
+      btn?.classList.toggle('active');
+    }
+    document.querySelector('.menu__icon')?.addEventListener('click', toggleMenu);
+    document.addEventListener('click', (e) => {
+      const nav = document.getElementById('main-nav');
+      const btn = document.getElementById('menu-btn');
+      if(!nav || !btn) return;
+      if(!nav.contains(e.target) && !btn.contains(e.target) && !nav.classList.contains('hidden')){
+        nav.classList.add('hidden');
+        nav.setAttribute('aria-hidden','true');
+        btn.classList.remove('active');
+      }
+    });
+  </script>
+</body>
+</html>
