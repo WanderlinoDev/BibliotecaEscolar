@@ -141,6 +141,102 @@ apiRouter.delete("/usuarios/:id", async (req, res) => {
   }
 });
 
+
+// ====================== ROTAS DE LIVROS ========================= //
+
+// 🔹 Cadastrar novo livro
+apiRouter.post('/livros', async (req, res) => {
+  try {
+    const {
+      isbn, titulo, subtitulo, autor, genero,
+      editora, edicao, ano_publicacao, descricao
+    } = req.body;
+
+    const query = `
+      INSERT INTO livros (isbn, titulo, subtitulo, autor, genero, editora, edicao, ano_publicacao, descricao)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+      RETURNING *;
+    `;
+    const values = [isbn, titulo, subtitulo, autor, genero, editora, edicao, ano_publicacao, descricao];
+    const result = await pool.query(query, values);
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error('❌ Erro ao cadastrar livro:', err.message);
+    res.status(500).json({ error: 'Erro ao cadastrar livro.' });
+  }
+});
+
+// 🔹 Buscar livros por ISBN ou título (search)
+apiRouter.get('/livros/search', async (req, res) => {
+  try {
+    const { isbn, titulo } = req.query;
+    let query = 'SELECT * FROM livros WHERE 1=1';
+    const values = [];
+    let idx = 1;
+    if (isbn) {
+      query += ` AND isbn = $${idx++}`;
+      values.push(isbn);
+    }
+    if (titulo) {
+      query += ` AND titulo ILIKE $${idx++}`;
+      values.push('%' + titulo + '%');
+    }
+    query += ' ORDER BY id_livro DESC LIMIT 50';
+    const result = await pool.query(query, values);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('❌ Erro ao buscar livros:', err.message);
+    res.status(500).json({ error: 'Erro ao buscar livros.' });
+  }
+});
+
+// 🔹 Listar todos os livros
+apiRouter.get('/livros', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM livros ORDER BY id_livro DESC');
+    res.json(result.rows);
+  } catch (err) {
+    console.error('❌ Erro ao listar livros:', err.message);
+    res.status(500).json({ error: 'Erro ao listar livros.' });
+  }
+});
+
+// 🔹 Atualizar livro
+apiRouter.put('/livros/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      isbn, titulo, subtitulo, autor, genero,
+      editora, edicao, ano_publicacao, descricao, status
+    } = req.body;
+
+    const result = await pool.query(
+      `UPDATE livros SET isbn=$1, titulo=$2, subtitulo=$3, autor=$4, genero=$5, editora=$6, edicao=$7, ano_publicacao=$8, descricao=$9, status=$10 WHERE id_livro=$11 RETURNING *`,
+      [isbn, titulo, subtitulo, autor, genero, editora, edicao, ano_publicacao, descricao, status || 'Disponível', id]
+    );
+
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Livro não encontrado.' });
+    res.json({ message: 'Livro atualizado com sucesso!', livro: result.rows[0] });
+  } catch (err) {
+    console.error('❌ Erro ao atualizar livro:', err.message);
+    res.status(500).json({ error: 'Erro ao atualizar livro.' });
+  }
+});
+
+// 🔹 Excluir livro
+apiRouter.delete('/livros/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query('DELETE FROM livros WHERE id_livro = $1', [id]);
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Livro não encontrado.' });
+    res.json({ message: 'Livro excluído com sucesso!' });
+  } catch (err) {
+    console.error('❌ Erro ao excluir livro:', err.message);
+    res.status(500).json({ error: 'Erro ao excluir livro.' });
+  }
+});
+
+
 app.use("/api", apiRouter);
 
 // ========================================================= //

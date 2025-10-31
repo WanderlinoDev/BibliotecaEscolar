@@ -1,62 +1,103 @@
-<section id="cadastro-livro" class="section">
-<h2>Cadastrar Novo Livro</h2>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Livros</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <main id="content-area">
+    <section id="cadastro-livro" class="section">
+      <h2>📚 Cadastrar Livros</h2>
 
-<form id="form-livro" style="display:flex;flex-direction:column;align-items:center;gap:15px;width:100%;">
+      <form id="form-livro" class="formulario">
+        <input type="hidden" id="livro-id" />
 
-<div class="input-container"><input type="text" id="livro-nome"
-placeholder="Título do Livro" required><span class="topline"></span><span
-class="underline"></span><label class="label" for="livro-nome">Título</label></div>
-<div class="input-container"><input type="text" id="livro-autor"
-placeholder="Autor" required><span class="topline"></span><span
-class="underline"></span><label class="label" for="livro-autor">Autor</label></div>
-<div class="input-container"><input type="text" id="livro-genero"
-placeholder="Gênero"><span class="topline"></span><span
+        <!-- ISBN -->
+        <div class="input-container">
+          <input type="text" id="livro-isbn" class="input" placeholder=" " required />
+          <label for="livro-isbn" class="label">ISBN</label>
+          <span class="lupa" id="btn-pesq-isbn" title="Pesquisar por ISBN">🔍</span>
+          <div class="topline"></div>
+          <div class="underline"></div>
+        </div>
 
-class="underline"></span><label class="label" for="livro-
-genero">Gênero</label></div>
+        <!-- Título -->
+        <div class="input-container">
+          <input type="text" id="livro-titulo" class="input" placeholder=" " required />
+          <label for="livro-titulo" class="label">Título</label>
+          <span class="lupa" id="btn-pesq-titulo" title="Pesquisar por título">🔍</span>
+          <div class="topline"></div>
+          <div class="underline"></div>
+        </div>
 
-<div class="input-container"><input type="text" id="livro-editora"
-placeholder="Editora"><span class="topline"></span><span
+        <!-- Subtítulo -->
+        <div class="input-container">
+          <input type="text" id="livro-subtitulo" class="input" placeholder=" " />
+          <label for="livro-subtitulo" class="label">Subtítulo</label>
+          <div class="topline"></div>
+          <div class="underline"></div>
+        </div>
 
-class="underline"></span><label class="label" for="livro-
-editora">Editora</label></div>
+        <!-- Autor -->
+        <div class="input-container">
+          <input type="text" id="livro-autor" class="input" placeholder=" " />
+          <label for="livro-autor" class="label">Autor</label>
+          <div class="topline"></div>
+          <div class="underline"></div>
+        </div>
 
-<div class="input-container"><input type="text" id="livro-edicao"
-placeholder="Edição"><span class="topline"></span><span
+        <!-- Gênero -->
+        <div class="input-container">
+          <input type="text" id="livro-genero" class="input" placeholder=" " />
+          <label for="livro-genero" class="label">Gênero</label>
+          <div class="topline"></div>
+          <div class="underline"></div>
+        </div>
 
-class="underline"></span><label class="label" for="livro-
-edicao">Edição</label></div>
+        <!-- Editora -->
+        <div class="input-container">
+          <input type="text" id="livro-editora" class="input" placeholder=" " />
+          <label for="livro-editora" class="label">Editora</label>
+          <div class="topline"></div>
+          <div class="underline"></div>
+        </div>
 
-<div class="input-container"><input type="text" id="livro-ano" placeholder="Ano
-de Publicação"><span class="topline"></span><span class="underline"></span><label
-class="label" for="livro-ano">Ano</label></div>
-<div class="input-container"><input type="text" id="livro-isbn"
-placeholder="ISBN"><span class="topline"></span><span
-class="underline"></span><label class="label" for="livro-isbn">ISBN</label></div>
+        <!-- Edição -->
+        <div class="input-container">
+          <input type="text" id="livro-edicao" class="input" placeholder=" " />
+          <label for="livro-edicao" class="label">Edição</label>
+          <div class="topline"></div>
+          <div class="underline"></div>
+        </div>
 
-<div class="input-container"><input type="text" id="livro-codbarras"
-placeholder="Código de Barras"><span class="topline"></span><span
-class="underline"></span><label class="label" for="livro-codbarras">Código de
-Barras</label></div>
-<button type="submit"><span>Cadastrar Livro</span></button>
-</form>
-<h3>Estoque de Livros</h3>
-<div style="overflow-x:auto;">
-<table id="tabela-livros" style="width:100%;border-collapse:collapse;">
-<thead>
-<tr style="background:#001f3f;color:white;">
-<th>ID</th>
-<th>Título</th>
-<th>Autor</th>
-<th>Gênero</th>
-<th>Editora</th>
-<th>Edição</th>
-<th>Ano</th>
-<th>ISBN</th>
-<th>Cód. Barras</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
-</div>
-</section>
+        <!-- Ano -->
+        <div class="input-container">
+          <input type="text" id="livro-ano" class="input" placeholder=" " maxlength="4" />
+          <label for="livro-ano" class="label">Ano</label>
+          <div class="topline"></div>
+          <div class="underline"></div>
+        </div>
+
+        <!-- Descrição -->
+        <div class="input-container">
+          <textarea id="livro-descricao" class="input" placeholder=" " rows="4"></textarea>
+          <label for="livro-descricao" class="label">Descrição</label>
+          <div class="topline"></div>
+          <div class="underline"></div>
+        </div>
+
+        <!-- Botões -->
+        <div class="btn-container">
+          <button type="submit" class="btn" id="btn-salvar-livro"><span>Salvar</span></button>
+          <button type="button" id="btn-excluir-livro" class="btn"><span>Excluir</span></button>
+          <button type="button" id="btn-limpar-livro" class="btn"><span>Limpar</span></button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <script src="../script.js"></script>
+</body>
+</html>

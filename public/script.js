@@ -288,3 +288,154 @@ async function navigate(page, btn, renderFn) {
     if (bg) bg.classList.remove('active'); // volta ao ícone azul
   }
 }
+
+
+// ====================== FUNÇÕES DE LIVROS ====================== //
+
+// Preenche campos do formulário de livro
+function preencherCamposLivro(livro) {
+  document.getElementById('livro-id').value = livro.id_livro || '';
+  document.getElementById('livro-isbn').value = livro.isbn || '';
+  document.getElementById('livro-titulo').value = livro.titulo || '';
+  document.getElementById('livro-subtitulo').value = livro.subtitulo || '';
+  document.getElementById('livro-autor').value = livro.autor || '';
+  document.getElementById('livro-genero').value = livro.genero || '';
+  document.getElementById('livro-editora').value = livro.editora || '';
+  document.getElementById('livro-edicao').value = livro.edicao || '';
+  document.getElementById('livro-ano').value = livro.ano_publicacao || '';
+  document.getElementById('livro-descricao').value = livro.descricao || '';
+}
+
+// Busca livro por ISBN: primeiro no banco, depois no Google Books
+async function buscarLivroPorISBN() {
+  const isbnEl = document.getElementById('livro-isbn');
+  const isbn = isbnEl?.value?.trim();
+  if (!isbn) return showMessage('Digite um ISBN para pesquisar.', 'info');
+
+  // 1) busca no banco
+  const data = await tryFetch(`${BASE_API_URL}/livros/search?isbn=${encodeURIComponent(isbn)}`);
+  if (data && data.length > 0) {
+    preencherCamposLivro(data[0]);
+    showMessage('📘 Livro encontrado no sistema.', 'success');
+    return;
+  }
+
+  // 2) busca no Google Books
+  try {
+    const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${encodeURIComponent(isbn)}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Erro na requisição: ' + res.status);
+    const json = await res.json();
+    if (json.totalItems > 0) {
+      const book = json.items[0].volumeInfo;
+      const livro = {
+        isbn,
+        titulo: book.title || '',
+        subtitulo: book.subtitle || '',
+        autor: book.authors ? book.authors.join(', ') : '',
+        genero: book.categories ? book.categories.join(', ') : '',
+        editora: book.publisher || '',
+        edicao: book?.industryIdentifiers ? (book.industryIdentifiers[0]?.type || '') : '',
+        ano_publicacao: book.publishedDate ? String(book.publishedDate).substring(0,4) : '',
+        descricao: book.description || ''
+      };
+      preencherCamposLivro(livro);
+      showMessage('📗 Dados importados do Google Books. Grave o livro para salvar no sistema.', 'info');
+    } else {
+      showMessage('⚠️ Nenhum livro encontrado para este ISBN.', 'info');
+    }
+  } catch (error) {
+    console.error('❌ Erro ao consultar Google Books:', error);
+    showMessage('Erro ao consultar Google Books.', 'error');
+  }
+}
+
+// Salvar (inserir ou atualizar) livro
+async function handleSalvarLivro(e) {
+  e.preventDefault();
+  const id = document.getElementById('livro-id')?.value;
+  const livro = {
+    isbn: document.getElementById('livro-isbn').value.trim(),
+    titulo: document.getElementById('livro-titulo').value.trim(),
+    subtitulo: document.getElementById('livro-subtitulo').value.trim(),
+    autor: document.getElementById('livro-autor').value.trim(),
+    genero: document.getElementById('livro-genero').value.trim(),
+    editora: document.getElementById('livro-editora').value.trim(),
+    edicao: document.getElementById('livro-edicao').value.trim(),
+    ano_publicacao: document.getElementById('livro-ano').value.trim(),
+    descricao: document.getElementById('livro-descricao').value.trim()
+  };
+
+  if (!livro.titulo) return showMessage('O título é obrigatório.', 'error');
+
+  try {
+    if (id) {
+      const result = await tryFetch(`${BASE_API_URL}/livros/${id}`, { method: 'PUT', body: livro });
+      if (result) showMessage('Livro atualizado com sucesso!', 'success');
+    } else {
+      const result = await tryFetch(`${BASE_API_URL}/livros`, { method: 'POST', body: livro });
+      if (result) {
+        showMessage('Livro cadastrado com sucesso!', 'success');
+        document.getElementById('form-livro').reset();
+      }
+    }
+  } catch (err) {
+    console.error('Erro ao salvar livro:', err);
+    showMessage('Erro ao salvar livro.', 'error');
+  }
+}
+
+// Excluir livro
+async function handleExcluirLivro() {
+  const id = document.getElementById('livro-id').value;
+  if (!id) return showMessage('Selecione um livro antes de excluir.', 'error');
+  if (!confirm('Deseja realmente excluir este livro?')) return;
+
+  const result = await tryFetch(`${BASE_API_URL}/livros/${id}`, { method: 'DELETE' });
+  if (result) {
+    showMessage('Livro excluído com sucesso!', 'success');
+    document.getElementById('form-livro').reset();
+    document.getElementById('livro-id').value = '';
+  }
+}
+
+// Pesquisar por título (lupa)
+async function buscarLivroPorTitulo() {
+  const titulo = document.getElementById('livro-titulo').value.trim();
+  if (!titulo) return showMessage('Digite o título para pesquisar.', 'info');
+
+  const data = await tryFetch(`${BASE_API_URL}/livros/search?titulo=${encodeURIComponent(titulo)}`);
+  if (data && data.length > 0) {
+    preencherCamposLivro(data[0]);
+    showMessage('📘 Livro encontrado no sistema.', 'success');
+  } else {
+    showMessage('Nenhum livro encontrado com esse título.', 'info');
+  }
+}
+
+// Quando o conteúdo do main muda, tenta vincular listeners do livro
+(function initLivroAutoBinder(){
+  const target = document.getElementById('content-area');
+  if (!target) return;
+  const obs = new MutationObserver((mutations) => {
+    for (const m of mutations) {
+      for (const node of m.addedNodes) {
+        if (node.nodeType === 1) {
+          if (node.querySelector && node.querySelector('#form-livro')) {
+            // attach listeners
+            document.getElementById('form-livro')?.addEventListener('submit', handleSalvarLivro);
+            document.getElementById('btn-excluir-livro')?.addEventListener('click', handleExcluirLivro);
+            document.getElementById('btn-limpar-livro')?.addEventListener('click', () => {
+              document.getElementById('form-livro').reset();
+              document.getElementById('livro-id').value = '';
+              showMessage('Formulário limpo.', 'info');
+            });
+            document.getElementById('btn-pesq-isbn')?.addEventListener('click', buscarLivroPorISBN);
+            document.getElementById('btn-pesq-titulo')?.addEventListener('click', buscarLivroPorTitulo);
+          }
+        }
+      }
+    }
+  });
+  obs.observe(target, { childList: true, subtree: true });
+})();
