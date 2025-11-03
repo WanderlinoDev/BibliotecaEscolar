@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>📚 SISTEMA DE GESTÃO DE BIBLIOTECA</title>
+  <title>📚 SIGEB</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -12,7 +12,7 @@
        ============================================================ -->
   <header>
     <div class="header-content">
-      <h1>📖 Biblioteca Escolar</h1>
+      <h1>📖 SISTEMA DE GESTÃO DE BIBLIOTECA</h1>
 
       <!-- 🔹 Botão Hamburguer (novo design) -->
       <div class="background" onclick="toggleMenu()">
@@ -28,12 +28,12 @@
   <!-- ============================================================
        🧭 MENU HAMBÚRGUER
        ============================================================ -->
-  <nav id="main-nav" class="nav-menu hidden">
-    <button onclick="navigate('pages/CadastroUsuario.html', this, 'renderUsuarios')">
-      Cadastro de Usuário
-    </button>
+  <nav id="main-nav" class="nav-menu hidden">    
     <button onclick="navigate('pages/CadastroLivro.html', this, 'renderLivros')">
-      Cadastro de Livro
+      Gestão de Livro
+    </button>
+    <button onclick="navigate('pages/CadastroUsuario.html', this, 'renderUsuarios')">
+      Gestão de Usuário
     </button>
     <button onclick="navigate('pages/Movimentacao.html', this, 'renderMovimentacoes')">
       Movimentações
